@@ -1,10 +1,12 @@
+mod bypass;
 mod delay_line;
 mod lfo;
 mod params;
 mod shared {
   pub mod float_ext;
+  pub mod macros;
 }
-pub use params::Params;
+pub use {bypass::Bypass, params::Params};
 use {
   delay_line::{DelayLine, Interpolation},
   lfo::Lfo,

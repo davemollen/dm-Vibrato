@@ -1,7 +1,7 @@
 extern crate lv2;
 extern crate vibrato;
 use lv2::prelude::*;
-use vibrato::{Params, Vibrato};
+use vibrato::{Bypass, Params, Vibrato};
 
 #[derive(PortCollection)]
 struct Ports {
@@ -11,12 +11,14 @@ struct Ports {
   chance: InputPort<InPlaceControl>,
   input: InputPort<InPlaceAudio>,
   output: OutputPort<InPlaceAudio>,
+  enabled: InputPort<InPlaceControl>,
 }
 
 #[uri("https://github.com/davemollen/dm-Vibrato")]
 struct DmVibrato {
   vibrato: Vibrato,
   params: Params,
+  bypass: Bypass,
 }
 
 impl Plugin for DmVibrato {
@@ -34,6 +36,7 @@ impl Plugin for DmVibrato {
     Some(Self {
       vibrato: Vibrato::new(sample_rate),
       params: Params::new(sample_rate),
+      bypass: Bypass::new(sample_rate),
     })
   }
 
@@ -41,11 +44,22 @@ impl Plugin for DmVibrato {
   fn activate(&mut self, _features: &mut Self::InitFeatures) {
     self.vibrato.reset();
     self.params.reset();
+    self.bypass.reset();
   }
 
   // Process a chunk of audio. The audio ports are dereferenced to slices, which the plugin
   // iterates over.
-  fn run(&mut self, ports: &mut Ports, _features: &mut (), _sample_count: u32) {
+  fn run(&mut self, ports: &mut Ports, _features: &mut (), sample_count: u32) {
+    self.bypass.set_enabled(ports.enabled.get() == 0., || {
+      self.vibrato.reset();
+      self.params.reset();
+    });
+
+    if self.bypass.is_done_activating() {
+      ports.output.copy_from(&ports.input, sample_count);
+      return;
+    }
+
     self.params.set(
       ports.freq.get(),
       ports.depth.get() * 0.01,
@@ -54,7 +68,9 @@ impl Plugin for DmVibrato {
     );
 
     for (input, output) in ports.input.iter().zip(ports.output.iter()) {
-      let vibrato_output = self.vibrato.process(input.get(), &mut self.params);
+      let dry = input.get();
+      let wet = self.vibrato.process(dry, &mut self.params);
+      let vibrato_output = self.bypass.process(dry, wet);
       output.set(vibrato_output);
     }
   }

@@ -1,9 +1,6 @@
 mod smooth;
-pub use smooth::Smoother;
-use {
-  crate::MAX_DEPTH,
-  smooth::{LinearSmooth, LogarithmicSmooth},
-};
+pub use smooth::{LinearSmooth, Smoother};
+use {crate::MAX_DEPTH, smooth::LogarithmicSmooth};
 
 #[derive(Clone, Copy)]
 pub enum LfoShape {
