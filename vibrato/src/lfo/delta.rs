@@ -9,6 +9,10 @@ impl Delta {
     }
   }
 
+  pub fn reset(&mut self) {
+    self.z = 1.; // forces a trigger on initial load
+  }
+
   pub fn process(&mut self, input: f32) -> f32 {
     let output = input - self.z;
     self.z = input;

@@ -38,6 +38,10 @@ impl Params {
     }
   }
 
+  pub fn reset(&mut self) {
+    self.is_initialized = false;
+  }
+
   pub fn set(&mut self, freq: f32, depth: f32, shape: i32, chance: f32) {
     self.depth = depth * depth * MAX_DEPTH;
     self.shape = match shape {

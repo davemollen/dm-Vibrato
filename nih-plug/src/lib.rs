@@ -69,6 +69,11 @@ impl Plugin for DmVibrato {
     true
   }
 
+  fn reset(&mut self) {
+    self.vibrato.reset();
+    self.process_params.reset();
+  }
+
   fn process(
     &mut self,
     buffer: &mut Buffer,

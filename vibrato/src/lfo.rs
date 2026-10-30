@@ -26,6 +26,14 @@ impl Lfo {
     }
   }
 
+  pub fn reset(&mut self) {
+    self.phasor.reset();
+    self.delta.reset();
+    self.is_enabled = true;
+    self.origin = 0.;
+    self.target = 0.;
+  }
+
   pub fn initialize(&mut self, chance: f32) {
     self.is_enabled = fastrand::f32() <= chance;
   }

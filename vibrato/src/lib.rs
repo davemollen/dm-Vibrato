@@ -31,6 +31,11 @@ impl Vibrato {
     }
   }
 
+  pub fn reset(&mut self) {
+    self.delay_line.reset();
+    self.lfo.reset();
+  }
+
   pub fn process(&mut self, input: f32, params: &mut Params) -> f32 {
     let Params {
       shape,
